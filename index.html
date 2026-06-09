@@ -60,6 +60,23 @@
             display: flex;
             width: 100%;
             height: 100%;
+            position: relative;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--md-sys-color-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .sidebar {
@@ -75,6 +92,8 @@
             position: relative;
             overflow: hidden;
             will-change: transform, backdrop-filter;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
         }
 
         .sidebar::before {
@@ -335,10 +354,60 @@
             font-size: 20px;
             font-weight: 700;
             font-family: 'Courier New', Courier, monospace;
+            word-break: break-all;
+            text-align: right;
+            padding-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                transform: translateX(0);
+                border-right: none !important;
+            }
+
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                padding: 76px 16px 24px 16px;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 24px !important;
+            }
+
+            .card h2 {
+                font-size: 22px;
+            }
+
+            .result-container {
+                padding: 16px;
+            }
+
+            .result-value {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
 
     <div class="app-container">
         <aside class="sidebar">
@@ -389,7 +458,6 @@
 
         <main class="main-content">
             
-            <!-- Length Page -->
             <div id="tab-length" class="page active">
                 <div class="card">
                     <h2>Length & Distance</h2>
@@ -436,7 +504,6 @@
                 </div>
             </div>
 
-            <!-- Area Page -->
             <div id="tab-area" class="page">
                 <div class="card">
                     <h2>Area (Square Units)</h2>
@@ -479,7 +546,6 @@
                 </div>
             </div>
 
-            <!-- Volume Page -->
             <div id="tab-volume" class="page">
                 <div class="card">
                     <h2>Volume (Cubic Units)</h2>
@@ -512,7 +578,7 @@
                         <div class="result-item"><span class="result-label">Milliliters / cm³</span><span id="res-volume-ml" class="result-value">0.0000</span></div>
                         <div class="result-item result-divider"><span class="result-label">Liters (L)</span><span id="res-volume-l" class="result-value">0.0000</span></div>
                         <div class="result-item result-divider"><span class="result-label">Cubic Meters (m³)</span><span id="res-volume-m3" class="result-value">0.0000</span></div>
-                        <div class="result-item result-divider"><span class="result-label">Cubic Inches (in³)</span><span id="res-volume-in3" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Cubic Inches (in³</span><span id="res-volume-in3" class="result-value">0.0000</span></div>
                         <div class="result-item result-divider"><span class="result-label">Cubic Feet (ft³)</span><span id="res-volume-ft3" class="result-value">0.0000</span></div>
                         <div class="result-item result-divider"><span class="result-label">Gallons (US)</span><span id="res-volume-gal" class="result-value">0.0000</span></div>
                         <div class="result-item result-divider"><span class="result-label">Gallons (UK Imperial)</span><span id="res-volume-gal_uk" class="result-value">0.0000</span></div>
@@ -526,7 +592,6 @@
                 </div>
             </div>
 
-            <!-- Mass Page -->
             <div id="tab-mass" class="page">
                 <div class="card">
                     <h2>Mass & Weight</h2>
@@ -567,7 +632,6 @@
                 </div>
             </div>
 
-            <!-- Temperature Page -->
             <div id="tab-temperature" class="page">
                 <div class="card">
                     <h2>Temperature</h2>
@@ -596,7 +660,6 @@
                 </div>
             </div>
 
-            <!-- Speed Page -->
             <div id="tab-speed" class="page">
                 <div class="card">
                     <h2>Speed & Velocity</h2>
@@ -629,7 +692,6 @@
                 </div>
             </div>
 
-            <!-- Energy & Power Page -->
             <div id="tab-energy" class="page">
                 <div class="card">
                     <h2>Energy & Power</h2>
@@ -668,7 +730,6 @@
                 </div>
             </div>
 
-            <!-- Pressure Page -->
             <div id="tab-pressure" class="page">
                 <div class="card">
                     <h2>Pressure & Stress</h2>
@@ -701,7 +762,6 @@
                 </div>
             </div>
 
-            <!-- Time Page -->
             <div id="tab-time" class="page">
                 <div class="card">
                     <h2>Time Duration</h2>
@@ -742,7 +802,6 @@
                 </div>
             </div>
 
-            <!-- Digital Page -->
             <div id="tab-digital" class="page">
                 <div class="card">
                     <h2>Digital Storage</h2>
@@ -781,6 +840,11 @@
     </div>
 
     <script>
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('mobile-hidden');
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -792,6 +856,10 @@
             if (clickedBtn) clickedBtn.classList.add('active');
             
             triggerTabCalculation(tabId);
+
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.add('mobile-hidden');
+            }
         }
 
         function triggerTabCalculation(tabId) {
@@ -815,7 +883,6 @@
             return value.toFixed(4);
         }
 
-        // --- LENGTH CONVERSIONS (Base: Meter) ---
         const lengthFactors = {
             nm: 1e-9, um: 1e-6, mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344, nmi: 1852, au: 1.495978707e11, ly: 9.4607304725808e15
         };
@@ -829,7 +896,6 @@
             }
         }
 
-        // --- AREA CONVERSIONS (Base: Sq Meter) ---
         const areaFactors = {
             mm2: 1e-6, cm2: 1e-4, m2: 1, km2: 1e6, in2: 0.00064516, ft2: 0.09290304, yd2: 0.83612736, mi2: 2589988.11, acre: 4046.856, hectare: 10000, barn: 1e-28
         };
@@ -843,7 +909,6 @@
             }
         }
 
-        // --- VOLUME CONVERSIONS (Base: Liter) ---
         const volumeFactors = {
             ml: 0.001, l: 1, m3: 1000, in3: 0.016387064, ft3: 28.316846592, gal: 3.785411784, gal_uk: 4.54609, qt: 0.946352946, pt: 0.473176473, cup: 0.236588236, floz: 0.0295735296, tbsp: 0.0147867648, tsp: 0.0049289216
         };
@@ -857,7 +922,6 @@
             }
         }
 
-        // --- MASS CONVERSIONS (Base: Gram) ---
         const massFactors = {
             ug: 1e-6, mg: 0.001, g: 1, kg: 1000, lb: 453.59237, oz: 28.349523125, stone: 6350.29318, ton: 1000000, carat: 0.2, amu: 1.6605390666e-24
         };
@@ -871,7 +935,6 @@
             }
         }
 
-        // --- TEMPERATURE CONVERSIONS ---
         function convertTemp() {
             const val = parseFloat(document.getElementById('input-val-temp').value);
             const from = document.getElementById('select-from-temp').value;
@@ -888,7 +951,6 @@
             document.getElementById('res-temp-r').innerText = formatValue((c + 273.15) * 9 / 5);
         }
 
-        // --- SPEED CONVERSIONS (Base: m/s) ---
         const speedFactors = {
             ms: 1, kmh: 1 / 3.6, mph: 0.44704, knots: 0.514444, mach: 340.29, c_speed: 299792458
         };
@@ -902,7 +964,6 @@
             }
         }
 
-        // --- ENERGY & POWER CONVERSIONS (Base: Joule) ---
         const energyFactors = {
             j: 1, kj: 1000, cal: 4.184, kcal: 4184, wh: 3600, kwh: 3600000, btu: 1055.05585, hp: 745.699872, w_power: 1
         };
@@ -911,14 +972,12 @@
             const from = document.getElementById('select-from-energy').value;
             if (isNaN(val)) return;
             
-            // Treat energy units and continuous power context over a standard reference index mapping
             const base = val * energyFactors[from];
             for (let key in energyFactors) {
                 document.getElementById(`res-energy-${key}`).innerText = formatValue(base / energyFactors[key]);
             }
         }
 
-        // --- PRESSURE CONVERSIONS (Base: Pascal) ---
         const pressureFactors = {
             pa: 1, kpa: 1000, bar: 100000, atm: 101325, psi: 6894.75729, torr: 133.322368
         };
@@ -932,7 +991,6 @@
             }
         }
 
-        // --- TIME CONVERSIONS (Base: Second) ---
         const timeFactors = {
             ms: 0.001, sec: 1, min: 60, hr: 3600, day: 86400, week: 604800, month: 2629743, year: 31557600, decade: 315576000, century: 3155760000
         };
@@ -946,7 +1004,6 @@
             }
         }
 
-        // --- DIGITAL STORAGE CONVERSIONS (Base: Byte) ---
         const digitalFactors = {
             bit: 0.125, b: 1, kb: 1024, mb: 1024**2, gb: 1024**3, tb: 1024**4, pb: 1024**5
         };
@@ -962,6 +1019,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             convertLength();
+            if (window.innerWidth <= 768) {
+            }
         });
     </script>
     <script>
@@ -976,6 +1035,7 @@
 
         document.querySelectorAll('.card').forEach(card=>{
          card.addEventListener('mousemove',(e)=>{
+           if (window.innerWidth <= 768) return;
            const r=card.getBoundingClientRect();
            const x=(e.clientX-r.left-r.width/2)/30;
            const y=(e.clientY-r.top-r.height/2)/30;
