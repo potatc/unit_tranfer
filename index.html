@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Unit Transfer Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --md-sys-color-primary: #6750A4;
+            --md-sys-color-on-primary: #FFFFFF;
+            --md-sys-color-primary-container: #EADDFF;
+            --md-sys-color-on-primary-container: #21005D;
+            --md-sys-color-surface: #FEF7FF;
+            --md-sys-color-surface-variant: #E7E0EC;
+            --md-sys-color-on-surface: #1D1B20;
+            --md-sys-color-on-surface-variant: #49454F;
+            --md-sys-color-outline: #79747E;
+            --md-sys-color-outline-variant: #C4C6D0;
+            --md-sys-color-background: #F3EDF7;
+            --md-sys-color-tertiary-container: #FCDFFF;
+            --md-sys-color-on-tertiary-container: #2B1233;
+
+            --md-shape-corner-extra-large: 28px;
+            --md-shape-corner-large: 16px;
+            --md-shape-corner-medium: 12px;
+            --md-shape-corner-full: 100px;
+            
+            --glass-bg: rgba(255, 255, 255, 0.16);
+            --glass-border: rgba(255, 255, 255, 0.42);
+            --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), inset 0 2px 10px rgba(255, 255, 255, 0.4);
+            --glass-blur: 30px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 20% 20%, #6ea8ff 0%, transparent 35%),
+                radial-gradient(circle at 80% 30%, #ff9bd7 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, #7df9ff 0%, transparent 35%),
+                linear-gradient(135deg, #eef4ff, #f8f4ff, #edfaff) !important;
+            background-attachment: fixed;
+            color: var(--md-sys-color-on-surface);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: var(--glass-bg) !important;
+            backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+            padding: 24px 12px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--glass-border) !important;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+            will-change: transform, backdrop-filter;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+            filter: blur(18px);
+            left: var(--blob-x, 50px);
+            top: var(--blob-y, 50px);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: left .12s linear, top .12s linear;
+        }
+
+        .sidebar-header {
+            padding: 16px 24px 24px 24px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--md-sys-color-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-scroll {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 4px;
+        }
+
+        .nav-scroll::-webkit-scrollbar { width: 4px; }
+        .nav-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--md-sys-color-outline);
+            padding: 16px 24px 6px 24px;
+            letter-spacing: 0.8px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            border: none;
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            border-radius: var(--md-shape-corner-full);
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            overflow: hidden;
+            will-change: transform, backdrop-filter;
+        }
+
+        .nav-button::after {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.45), transparent 65%);
+            opacity: 0;
+            transition: .35s;
+            pointer-events: none;
+        }
+
+        .nav-button:hover::after { opacity: 1; }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.22) !important;
+            backdrop-filter: blur(18px);
+            transform: translateX(4px);
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .nav-button.active {
+            background: rgba(255, 255, 255, 0.35) !important;
+            backdrop-filter: blur(22px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            color: var(--md-sys-color-on-primary-container);
+        }
+
+        .nav-button .material-symbols-outlined { font-size: 20px; }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 660px;
+            animation: M3FadeIn 0.4s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .page.active { display: block; }
+
+        @keyframes M3FadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.12)) !important;
+            backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 12px 60px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.7) !important;
+            border-radius: 36px !important;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+            opacity: .65;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.10), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .card h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 4px;
+        }
+
+        .card p.description {
+            font-size: 14px;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .inputs-grid .input-group { margin-bottom: 0; }
+
+        .text-input {
+            width: 100%;
+            padding: 22px 20px 14px 20px !important;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            border-radius: var(--md-shape-corner-large);
+            background: rgba(255, 255, 255, 0.18) !important;
+            backdrop-filter: blur(20px);
+            color: var(--md-sys-color-on-surface);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            will-change: transform;
+        }
+
+        select.text-input {
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2349454F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 16px center !important;
+            background-size: 16px !important;
+        }
+
+        .text-input:focus {
+            transform: translateY(-2px);
+            border-color: #5a8cff !important;
+            box-shadow: 0 0 0 4px rgba(90, 140, 255, 0.15), 0 10px 30px rgba(90, 140, 255, 0.12) !important;
+        }
+
+        .input-label {
+            position: absolute;
+            left: 16px;
+            top: -10px;
+            z-index: 5;
+            border-radius: 999px;
+            padding: 4px 10px !important;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.75) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--md-sys-color-primary);
+        }
+
+        .result-container {
+            margin-top: 28px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.22) !important;
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--md-shape-corner-large);
+            color: var(--md-sys-color-on-surface);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            will-change: transform, backdrop-filter;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.35);
+            padding-top: 14px;
+        }
+
+        .result-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 style="cursor:pointer;" onclick="window.location.href='https://potatc.github.io/studies/'">Unit Transfer</h1>
+            </div>
+
+            <div class="nav-scroll">
+                <div class="nav-section-title">Linear Space</div>
+                <button class="nav-button active" onclick="switchTab('tab-length')">
+                    <span class="material-symbols-outlined">straighten</span>Length & Distance
+                </button>
+
+                <div class="nav-section-title">Planar & Solids</div>
+                <button class="nav-button" onclick="switchTab('tab-area')">
+                    <span class="material-symbols-outlined">layers</span>Area (Square Units)
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-volume')">
+                    <span class="material-symbols-outlined">view_in_ar</span>Volume (Cubic Units)
+                </button>
+
+                <div class="nav-section-title">Physics & Core</div>
+                <button class="nav-button" onclick="switchTab('tab-mass')">
+                    <span class="material-symbols-outlined">scale</span>Mass & Weight
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-temperature')">
+                    <span class="material-symbols-outlined">thermostat</span>Temperature
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-speed')">
+                    <span class="material-symbols-outlined">speed</span>Speed & Velocity
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-energy')">
+                    <span class="material-symbols-outlined">bolt</span>Energy & Power
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-pressure')">
+                    <span class="material-symbols-outlined">compress</span>Pressure & Stress
+                </button>
+
+                <div class="nav-section-title">Everyday Metrics</div>
+                <button class="nav-button" onclick="switchTab('tab-time')">
+                    <span class="material-symbols-outlined">schedule</span>Time Duration
+                </button>
+                <button class="nav-button" onclick="switchTab('tab-digital')">
+                    <span class="material-symbols-outlined">hard_drive</span>Digital Storage
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <!-- Length Page -->
+            <div id="tab-length" class="page active">
+                <div class="card">
+                    <h2>Length & Distance</h2>
+                    <p class="description">Convert between comprehensive linear metric layouts, micro/nano metrics, and astronomical spans.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-length" class="text-input" value="1" oninput="convertLength()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-length" class="text-input" onchange="convertLength()">
+                                <option value="nm">Nanometers (nm)</option>
+                                <option value="um">Micrometers (µm)</option>
+                                <option value="mm">Millimeters (mm)</option>
+                                <option value="cm">Centimeters (cm)</option>
+                                <option value="m" selected>Meters (m)</option>
+                                <option value="km">Kilometers (km)</option>
+                                <option value="in">Inches (in)</option>
+                                <option value="ft">Feet (ft)</option>
+                                <option value="yd">Yards (yd)</option>
+                                <option value="mi">Miles (mi)</option>
+                                <option value="nmi">Nautical Miles (NM)</option>
+                                <option value="au">Astronomical Units (AU)</option>
+                                <option value="ly">Light Years (ly)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Nanometers (nm)</span><span id="res-length-nm" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Micrometers (µm)</span><span id="res-length-um" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Millimeters (mm)</span><span id="res-length-mm" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Centimeters (cm)</span><span id="res-length-cm" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Meters (m)</span><span id="res-length-m" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilometers (km)</span><span id="res-length-km" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Inches (in)</span><span id="res-length-in" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Feet (ft)</span><span id="res-length-ft" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Yards (yd)</span><span id="res-length-yd" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Miles (mi)</span><span id="res-length-mi" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Nautical Miles (NM)</span><span id="res-length-nmi" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Astronomical Units (AU)</span><span id="res-length-au" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Light Years (ly)</span><span id="res-length-ly" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area Page -->
+            <div id="tab-area" class="page">
+                <div class="card">
+                    <h2>Area (Square Units)</h2>
+                    <p class="description">Calculate dimensional layouts, agricultural bounds, and secondary matrix components.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-area" class="text-input" value="1" oninput="convertArea()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-area" class="text-input" onchange="convertArea()">
+                                <option value="mm2">Square Millimeters (mm²)</option>
+                                <option value="cm2">Square Centimeters (cm²)</option>
+                                <option value="m2" selected>Square Meters (m²)</option>
+                                <option value="km2">Square Kilometers (km²)</option>
+                                <option value="in2">Square Inches (in²)</option>
+                                <option value="ft2">Square Feet (ft²)</option>
+                                <option value="yd2">Square Yards (yd²)</option>
+                                <option value="mi2">Square Miles (mi²)</option>
+                                <option value="acre">Acres</option>
+                                <option value="hectare">Hectares</option>
+                                <option value="barn">Barns (b)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Square Millimeters (mm²)</span><span id="res-area-mm2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Centimeters (cm²)</span><span id="res-area-cm2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Meters (m²)</span><span id="res-area-m2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Kilometers (km²)</span><span id="res-area-km2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Inches (in²)</span><span id="res-area-in2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Feet (ft²)</span><span id="res-area-ft2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Yards (yd²)</span><span id="res-area-yd2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Square Miles (mi²)</span><span id="res-area-mi2" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Acres</span><span id="res-area-acre" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Hectares</span><span id="res-area-hectare" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Barns (b)</span><span id="res-area-barn" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Volume Page -->
+            <div id="tab-volume" class="page">
+                <div class="card">
+                    <h2>Volume (Cubic Units)</h2>
+                    <p class="description">Measure three-dimensional liquid storage parameters along with UK Imperial variables.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-volume" class="text-input" value="1" oninput="convertVolume()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-volume" class="text-input" onchange="convertVolume()">
+                                <option value="ml">Milliliters / cm³</option>
+                                <option value="l" selected>Liters (L)</option>
+                                <option value="m3">Cubic Meters (m³)</option>
+                                <option value="in3">Cubic Inches (in³)</option>
+                                <option value="ft3">Cubic Feet (ft³)</option>
+                                <option value="gal">Gallons (US)</option>
+                                <option value="gal_uk">Gallons (UK Imperial)</option>
+                                <option value="qt">Quarts (US)</option>
+                                <option value="pt">Pints (US)</option>
+                                <option value="cup">Cups (US)</option>
+                                <option value="floz">Fluid Ounces (US)</option>
+                                <option value="tbsp">Tablespoons (tbsp)</option>
+                                <option value="tsp">Teaspoons (tsp)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Milliliters / cm³</span><span id="res-volume-ml" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Liters (L)</span><span id="res-volume-l" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Cubic Meters (m³)</span><span id="res-volume-m3" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Cubic Inches (in³)</span><span id="res-volume-in3" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Cubic Feet (ft³)</span><span id="res-volume-ft3" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Gallons (US)</span><span id="res-volume-gal" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Gallons (UK Imperial)</span><span id="res-volume-gal_uk" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Quarts (US)</span><span id="res-volume-qt" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Pints (US)</span><span id="res-volume-pt" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Cups (US)</span><span id="res-volume-cup" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Fluid Ounces (US)</span><span id="res-volume-floz" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Tablespoons (tbsp)</span><span id="res-volume-tbsp" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Teaspoons (tsp)</span><span id="res-volume-tsp" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mass Page -->
+            <div id="tab-mass" class="page">
+                <div class="card">
+                    <h2>Mass & Weight</h2>
+                    <p class="description">Evaluate physical material parameters spanning atomic levels and large-scale industrial cargo measurements.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-mass" class="text-input" value="1" oninput="convertMass()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-mass" class="text-input" onchange="convertMass()">
+                                <option value="ug">Micrograms (µg)</option>
+                                <option value="mg">Milligrams (mg)</option>
+                                <option value="g">Grams (g)</option>
+                                <option value="kg" selected>Kilograms (kg)</option>
+                                <option value="lb">Pounds (lb)</option>
+                                <option value="oz">Ounces (oz)</option>
+                                <option value="stone">Stones</option>
+                                <option value="ton">Metric Tons (t)</option>
+                                <option value="carat">Carats (ct)</option>
+                                <option value="amu">Atomic Mass Units (u)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Micrograms (µg)</span><span id="res-mass-ug" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Milligrams (mg)</span><span id="res-mass-mg" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Grams (g)</span><span id="res-mass-g" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilograms (kg)</span><span id="res-mass-kg" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Pounds (lb)</span><span id="res-mass-lb" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Ounces (oz)</span><span id="res-mass-oz" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Stones</span><span id="res-mass-stone" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Metric Tons (t)</span><span id="res-mass-ton" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Carats (ct)</span><span id="res-mass-carat" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Atomic Mass Units (u)</span><span id="res-mass-amu" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperature Page -->
+            <div id="tab-temperature" class="page">
+                <div class="card">
+                    <h2>Temperature</h2>
+                    <p class="description">Map absolute temperatures and common thermodynamic experimental tracks.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-temp" class="text-input" value="25" oninput="convertTemp()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-temp" class="text-input" onchange="convertTemp()">
+                                <option value="c" selected>Celsius (°C)</option>
+                                <option value="f">Fahrenheit (°F)</option>
+                                <option value="k">Kelvin (K)</option>
+                                <option value="r">Rankine (°R)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Celsius (°C)</span><span id="res-temp-c" class="result-value">25.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Fahrenheit (°F)</span><span id="res-temp-f" class="result-value">77.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kelvin (K)</span><span id="res-temp-k" class="result-value">298.1500</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Rankine (°R)</span><span id="res-temp-r" class="result-value">536.6700</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speed Page -->
+            <div id="tab-speed" class="page">
+                <div class="card">
+                    <h2>Speed & Velocity</h2>
+                    <p class="description">Evaluate kinetic parameters from regular vehicle trackers up to structural light constants.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-speed" class="text-input" value="1" oninput="convertSpeed()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-speed" class="text-input" onchange="convertSpeed()">
+                                <option value="ms">Meters per second (m/s)</option>
+                                <option value="kmh" selected>Kilometers per hour (km/h)</option>
+                                <option value="mph">Miles per hour (mph)</option>
+                                <option value="knots">Knots (kn)</option>
+                                <option value="mach">Mach (Speed of Sound)</option>
+                                <option value="c_speed">Speed of Light (c)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Meters per second (m/s)</span><span id="res-speed-ms" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilometers per hour (km/h)</span><span id="res-speed-kmh" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Miles per hour (mph)</span><span id="res-speed-mph" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Knots (kn)</span><span id="res-speed-knots" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Mach (at STPs)</span><span id="res-speed-mach" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Speed of Light (c)</span><span id="res-speed-c_speed" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energy & Power Page -->
+            <div id="tab-energy" class="page">
+                <div class="card">
+                    <h2>Energy & Power</h2>
+                    <p class="description">Map out thermodynamic changes, raw mechanical wattages, and nutritional indicators.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-energy" class="text-input" value="1" oninput="convertEnergy()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-energy" class="text-input" onchange="convertEnergy()">
+                                <option value="j" selected>Joules (J)</option>
+                                <option value="kj">Kilojoules (kJ)</option>
+                                <option value="cal">Calories (cal)</option>
+                                <option value="kcal">Kilocalories (kcal / Nutritional)</option>
+                                <option value="wh">Watt-hours (Wh)</option>
+                                <option value="kwh">Kilowatt-hours (kWh)</option>
+                                <option value="btu">BTUs</option>
+                                <option value="hp">Horsepower (hp - Mechanical)</option>
+                                <option value="w_power">Watts (W - Power Metric)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Joules (J)</span><span id="res-energy-j" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilojoules (kJ)</span><span id="res-energy-kj" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Calories (cal)</span><span id="res-energy-cal" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilocalories (kcal)</span><span id="res-energy-kcal" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Watt-hours (Wh)</span><span id="res-energy-wh" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilowatt-hours (kWh)</span><span id="res-energy-kwh" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">BTUs</span><span id="res-energy-btu" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Horsepower (hp)</span><span id="res-energy-hp" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Watts (W)</span><span id="res-energy-w_power" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pressure Page -->
+            <div id="tab-pressure" class="page">
+                <div class="card">
+                    <h2>Pressure & Stress</h2>
+                    <p class="description">Analyze structural compression thresholds and atmospheric metrics.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-pressure" class="text-input" value="1" oninput="convertPressure()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-pressure" class="text-input" onchange="convertPressure()">
+                                <option value="pa" selected>Pascals (Pa)</option>
+                                <option value="kpa">Kilopascals (kPa)</option>
+                                <option value="bar">Bars</option>
+                                <option value="atm">Atmospheres (atm)</option>
+                                <option value="psi">Pounds per Sq Inch (psi)</option>
+                                <option value="torr">Torrs (mmHg)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Pascals (Pa)</span><span id="res-pressure-pa" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilopascals (kPa)</span><span id="res-pressure-kpa" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Bars</span><span id="res-pressure-bar" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Atmospheres (atm)</span><span id="res-pressure-atm" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Pounds per Sq Inch (psi)</span><span id="res-pressure-psi" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Torrs (mmHg)</span><span id="res-pressure-torr" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Page -->
+            <div id="tab-time" class="page">
+                <div class="card">
+                    <h2>Time Duration</h2>
+                    <p class="description">Decode precise sequences running from millisecond steps up to complete generational decades.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-time" class="text-input" value="1" oninput="convertTime()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-time" class="text-input" onchange="convertTime()">
+                                <option value="ms">Milliseconds (ms)</option>
+                                <option value="sec">Seconds (s)</option>
+                                <option value="min">Minutes (min)</option>
+                                <option value="hr" selected>Hours (h)</option>
+                                <option value="day">Days (d)</option>
+                                <option value="week">Weeks (w)</option>
+                                <option value="month">Months (mo)</option>
+                                <option value="year">Years (yr)</option>
+                                <option value="decade">Decades</option>
+                                <option value="century">Centuries</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Milliseconds (ms)</span><span id="res-time-ms" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Seconds (s)</span><span id="res-time-sec" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Minutes (min)</span><span id="res-time-min" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Hours (h)</span><span id="res-time-hr" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Days (d)</span><span id="res-time-day" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Weeks (w)</span><span id="res-time-week" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Months (mo)</span><span id="res-time-month" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Years (yr)</span><span id="res-time-year" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Decades</span><span id="res-time-decade" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Centuries</span><span id="res-time-century" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Digital Page -->
+            <div id="tab-digital" class="page">
+                <div class="card">
+                    <h2>Digital Storage</h2>
+                    <p class="description">Compute computer storage partitions, individual data bit arrays, and storage limits.</p>
+                    <div class="inputs-grid">
+                        <div class="input-group">
+                            <label class="input-label">Value</label>
+                            <input type="number" id="input-val-digital" class="text-input" value="1" oninput="convertDigital()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">From Unit</label>
+                            <select id="select-from-digital" class="text-input" onchange="convertDigital()">
+                                <option value="bit">Bits (b)</option>
+                                <option value="b">Bytes (B)</option>
+                                <option value="kb">Kilobytes (KB)</option>
+                                <option value="mb" selected>Megabytes (MB)</option>
+                                <option value="gb">Gigabytes (GB)</option>
+                                <option value="tb">Terabytes (TB)</option>
+                                <option value="pb">Petabytes (PB)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-container">
+                        <div class="result-item"><span class="result-label">Bits (b)</span><span id="res-digital-bit" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Bytes (B)</span><span id="res-digital-b" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Kilobytes (KB)</span><span id="res-digital-kb" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Megabytes (MB)</span><span id="res-digital-mb" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Gigabytes (GB)</span><span id="res-digital-gb" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Terabytes (TB)</span><span id="res-digital-tb" class="result-value">0.0000</span></div>
+                        <div class="result-item result-divider"><span class="result-label">Petabytes (PB)</span><span id="res-digital-pb" class="result-value">0.0000</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            const clickedBtn = Array.from(document.querySelectorAll('.nav-button'))
+                                    .find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (clickedBtn) clickedBtn.classList.add('active');
+            
+            triggerTabCalculation(tabId);
+        }
+
+        function triggerTabCalculation(tabId) {
+            if (tabId === 'tab-length') convertLength();
+            else if (tabId === 'tab-area') convertArea();
+            else if (tabId === 'tab-volume') convertVolume();
+            else if (tabId === 'tab-mass') convertMass();
+            else if (tabId === 'tab-temperature') convertTemp();
+            else if (tabId === 'tab-speed') convertSpeed();
+            else if (tabId === 'tab-energy') convertEnergy();
+            else if (tabId === 'tab-pressure') convertPressure();
+            else if (tabId === 'tab-time') convertTime();
+            else if (tabId === 'tab-digital') convertDigital();
+        }
+
+        function formatValue(value) {
+            if (!Number.isFinite(value) || value === 0) return "0.0000";
+            if (Math.abs(value) < 0.0001 || Math.abs(value) > 1e9) {
+                return value.toExponential(4);
+            }
+            return value.toFixed(4);
+        }
+
+        // --- LENGTH CONVERSIONS (Base: Meter) ---
+        const lengthFactors = {
+            nm: 1e-9, um: 1e-6, mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344, nmi: 1852, au: 1.495978707e11, ly: 9.4607304725808e15
+        };
+        function convertLength() {
+            const val = parseFloat(document.getElementById('input-val-length').value);
+            const from = document.getElementById('select-from-length').value;
+            if (isNaN(val)) return;
+            const base = val * lengthFactors[from];
+            for (let key in lengthFactors) {
+                document.getElementById(`res-length-${key}`).innerText = formatValue(base / lengthFactors[key]);
+            }
+        }
+
+        // --- AREA CONVERSIONS (Base: Sq Meter) ---
+        const areaFactors = {
+            mm2: 1e-6, cm2: 1e-4, m2: 1, km2: 1e6, in2: 0.00064516, ft2: 0.09290304, yd2: 0.83612736, mi2: 2589988.11, acre: 4046.856, hectare: 10000, barn: 1e-28
+        };
+        function convertArea() {
+            const val = parseFloat(document.getElementById('input-val-area').value);
+            const from = document.getElementById('select-from-area').value;
+            if (isNaN(val)) return;
+            const base = val * areaFactors[from];
+            for (let key in areaFactors) {
+                document.getElementById(`res-area-${key}`).innerText = formatValue(base / areaFactors[key]);
+            }
+        }
+
+        // --- VOLUME CONVERSIONS (Base: Liter) ---
+        const volumeFactors = {
+            ml: 0.001, l: 1, m3: 1000, in3: 0.016387064, ft3: 28.316846592, gal: 3.785411784, gal_uk: 4.54609, qt: 0.946352946, pt: 0.473176473, cup: 0.236588236, floz: 0.0295735296, tbsp: 0.0147867648, tsp: 0.0049289216
+        };
+        function convertVolume() {
+            const val = parseFloat(document.getElementById('input-val-volume').value);
+            const from = document.getElementById('select-from-volume').value;
+            if (isNaN(val)) return;
+            const base = val * volumeFactors[from];
+            for (let key in volumeFactors) {
+                document.getElementById(`res-volume-${key}`).innerText = formatValue(base / volumeFactors[key]);
+            }
+        }
+
+        // --- MASS CONVERSIONS (Base: Gram) ---
+        const massFactors = {
+            ug: 1e-6, mg: 0.001, g: 1, kg: 1000, lb: 453.59237, oz: 28.349523125, stone: 6350.29318, ton: 1000000, carat: 0.2, amu: 1.6605390666e-24
+        };
+        function convertMass() {
+            const val = parseFloat(document.getElementById('input-val-mass').value);
+            const from = document.getElementById('select-from-mass').value;
+            if (isNaN(val)) return;
+            const base = val * massFactors[from];
+            for (let key in massFactors) {
+                document.getElementById(`res-mass-${key}`).innerText = formatValue(base / massFactors[key]);
+            }
+        }
+
+        // --- TEMPERATURE CONVERSIONS ---
+        function convertTemp() {
+            const val = parseFloat(document.getElementById('input-val-temp').value);
+            const from = document.getElementById('select-from-temp').value;
+            if (isNaN(val)) return;
+            let c;
+            if (from === 'c') c = val;
+            else if (from === 'f') c = (val - 32) * 5 / 9;
+            else if (from === 'k') c = val - 273.15;
+            else if (from === 'r') c = (val - 491.67) * 5 / 9;
+
+            document.getElementById('res-temp-c').innerText = formatValue(c);
+            document.getElementById('res-temp-f').innerText = formatValue(c * 9 / 5 + 32);
+            document.getElementById('res-temp-k').innerText = formatValue(c + 273.15);
+            document.getElementById('res-temp-r').innerText = formatValue((c + 273.15) * 9 / 5);
+        }
+
+        // --- SPEED CONVERSIONS (Base: m/s) ---
+        const speedFactors = {
+            ms: 1, kmh: 1 / 3.6, mph: 0.44704, knots: 0.514444, mach: 340.29, c_speed: 299792458
+        };
+        function convertSpeed() {
+            const val = parseFloat(document.getElementById('input-val-speed').value);
+            const from = document.getElementById('select-from-speed').value;
+            if (isNaN(val)) return;
+            const base = val * speedFactors[from];
+            for (let key in speedFactors) {
+                document.getElementById(`res-speed-${key}`).innerText = formatValue(base / speedFactors[key]);
+            }
+        }
+
+        // --- ENERGY & POWER CONVERSIONS (Base: Joule) ---
+        const energyFactors = {
+            j: 1, kj: 1000, cal: 4.184, kcal: 4184, wh: 3600, kwh: 3600000, btu: 1055.05585, hp: 745.699872, w_power: 1
+        };
+        function convertEnergy() {
+            const val = parseFloat(document.getElementById('input-val-energy').value);
+            const from = document.getElementById('select-from-energy').value;
+            if (isNaN(val)) return;
+            
+            // Treat energy units and continuous power context over a standard reference index mapping
+            const base = val * energyFactors[from];
+            for (let key in energyFactors) {
+                document.getElementById(`res-energy-${key}`).innerText = formatValue(base / energyFactors[key]);
+            }
+        }
+
+        // --- PRESSURE CONVERSIONS (Base: Pascal) ---
+        const pressureFactors = {
+            pa: 1, kpa: 1000, bar: 100000, atm: 101325, psi: 6894.75729, torr: 133.322368
+        };
+        function convertPressure() {
+            const val = parseFloat(document.getElementById('input-val-pressure').value);
+            const from = document.getElementById('select-from-pressure').value;
+            if (isNaN(val)) return;
+            const base = val * pressureFactors[from];
+            for (let key in pressureFactors) {
+                document.getElementById(`res-pressure-${key}`).innerText = formatValue(base / pressureFactors[key]);
+            }
+        }
+
+        // --- TIME CONVERSIONS (Base: Second) ---
+        const timeFactors = {
+            ms: 0.001, sec: 1, min: 60, hr: 3600, day: 86400, week: 604800, month: 2629743, year: 31557600, decade: 315576000, century: 3155760000
+        };
+        function convertTime() {
+            const val = parseFloat(document.getElementById('input-val-time').value);
+            const from = document.getElementById('select-from-time').value;
+            if (isNaN(val)) return;
+            const base = val * timeFactors[from];
+            for (let key in timeFactors) {
+                document.getElementById(`res-time-${key}`).innerText = formatValue(base / timeFactors[key]);
+            }
+        }
+
+        // --- DIGITAL STORAGE CONVERSIONS (Base: Byte) ---
+        const digitalFactors = {
+            bit: 0.125, b: 1, kb: 1024, mb: 1024**2, gb: 1024**3, tb: 1024**4, pb: 1024**5
+        };
+        function convertDigital() {
+            const val = parseFloat(document.getElementById('input-val-digital').value);
+            const from = document.getElementById('select-from-digital').value;
+            if (isNaN(val)) return;
+            const base = val * digitalFactors[from];
+            for (let key in digitalFactors) {
+                document.getElementById(`res-digital-${key}`).innerText = formatValue(base / digitalFactors[key]);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            convertLength();
+        });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded',()=>{
+        const sidebar=document.querySelector('.sidebar');
+
+        sidebar.addEventListener('pointermove',(e)=>{
+         const r=sidebar.getBoundingClientRect();
+         sidebar.style.setProperty('--blob-x',(e.clientX-r.left)+'px');
+         sidebar.style.setProperty('--blob-y',(e.clientY-r.top)+'px');
+        });
+
+        document.querySelectorAll('.card').forEach(card=>{
+         card.addEventListener('mousemove',(e)=>{
+           const r=card.getBoundingClientRect();
+           const x=(e.clientX-r.left-r.width/2)/30;
+           const y=(e.clientY-r.top-r.height/2)/30;
+           card.style.transform=`rotateY(${x}deg) rotateX(${-y}deg)`;
+         });
+         card.addEventListener('mouseleave',()=>{
+           card.style.transform='rotateY(0deg) rotateX(0deg)';
+         });
+        });
+    });
+    </script>
+</body>
+</html>
